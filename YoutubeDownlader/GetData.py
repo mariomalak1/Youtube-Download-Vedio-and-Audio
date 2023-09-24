@@ -47,16 +47,21 @@ class VideoData:
         typeToDownload = VideoData.get_type_video(dict_streams)
         res = VideoData.get_resolution_video(dict_streams, typeToDownload)
         destinationLocation = VideoData.get_valid_location()
-        file_name = VideoData.get_file_name()
 
         return videoObj.streams.filter(mime_type= typeToDownload, resolution= res).first(), destinationLocation, file_name
 
 
+    def exit_from_program(response):
+        if response.capitalize() == "X":
+            print("Thanks For Your Time")
+            exit()
+
     @staticmethod
     def get_video_link():
         while True:
-            link = input("enter link video you want to download : ")
+            link = input("enter link video you want to download: ")
             try:
+                VideoData.exit_from_program(link)
                 yt = YouTube(link)
                 break
             except:
@@ -67,6 +72,7 @@ class VideoData:
     def get_type_video(dict_streams):
         while True:
             video_type = input("enter video type as \"video/3gpp\" \"audio/mp4\" :  ")
+            VideoData.exit_from_program(video_type)
             if video_type in dict_streams:
                 return video_type
             else:
@@ -75,7 +81,10 @@ class VideoData:
     @staticmethod
     def get_resolution_video(dict_streams, type_video):
         while True:
-            quality = input("enter quality of video or audio you want")
+            quality = input("Enter Quality of Video or Audio You Want: ")
+
+            VideoData.exit_from_program(quality)
+
             if quality in dict_streams[type_video]:
                 return quality
             else:
@@ -83,7 +92,10 @@ class VideoData:
 
     @staticmethod
     def get_valid_location():
-        loc = input("enter location you want to download in it : ")
+        loc = input("Enter Location You Want to Download in It : ")
+
+        VideoData.exit_from_program(loc)
+
         if os.path.exists(loc):
             return loc
         else:
@@ -109,7 +121,8 @@ class VideoData:
 
         return dict_streams
 
-    @staticmethod
-    def get_file_name():
-        name = input("enter name of file as you want to save it, to download with the common name enter x")
-        return name
+    # @staticmethod
+    # def get_file_name():
+    #     name = input("Enter Name of File As You Want To Save It, Or Enter Y to Save With Common Name: ")
+    #     VideoData.exit_from_program(name)
+    #     return name
