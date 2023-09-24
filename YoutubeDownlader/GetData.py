@@ -22,31 +22,14 @@
 from pytube import YouTube
 import os
 
-from utilize import get_type_from_video
-
-# class DownloadVideo:
-#     videoObj = ""
-#     typeToDownload = ""
-#     res = 0
-#     destinationLocation = ""
-#
-#     def __init__(self, videoObj, typeToDownload, res, destinationLocation):
-#         self.destinationLocation = destinationLocation
-#         self.res = res
-#         self.videoObj = videoObj
-#         self.typeToDownload = typeToDownload
-#
-#     def __str__(self):
-#         return str(self.videoObj.streams.filter(mime_type=self.typeToDownload, resolution=self.res))
-
-
+from .utilize import get_type_from_video, exit_from_program
 
 class VideoData:
-    
+
     @staticmethod
     def get_video_data():
         videoObj = VideoData.get_video_link()
-        dict_streams = VideoData.print_video_res_types(videoObj)
+        dict_streams = VideoData.print_all_res(videoObj)
         itag = VideoData.get_specific_stream_number(dict_streams)
         # typeToDownload = VideoData.get_type_video(dict_streams)
         # res = VideoData.get_resolution_video(dict_streams, typeToDownload)
@@ -54,18 +37,12 @@ class VideoData:
 
         return videoObj.streams.get_by_itag(itag), destinationLocation
 
-
-    def exit_from_program(response):
-        if response.capitalize() == "X":
-            print("Thanks For Your Time")
-            exit()
-
     @staticmethod
     def get_video_link():
         while True:
             link = input("Enter Link Video You Want To Download: ")
             try:
-                VideoData.exit_from_program(link)
+                exit_from_program(link)
                 yt = YouTube(link)
                 break
             except:
@@ -84,39 +61,20 @@ class VideoData:
                     return dict_streams[res]
                 else:
                     print("Please Enter Valid Number of Stream")
+            except:
+                print("Please Enter Valid Number of Stream")
 
-
-    # @staticmethod
-    # def get_type_video(dict_streams):
-    #     while True:
-    #         video_type = input("enter video type as \"video/3gpp\" \"audio/mp4\" :  ")
-    #         VideoData.exit_from_program(video_type)
-    #         if video_type in dict_streams:
-    #             return video_type
-    #         else:
-    #             print("please enter valid type as writen before")
-
-    # @staticmethod
-    # def get_resolution_video(dict_streams, type_video):
-    #     while True:
-    #         quality = input("Enter Quality of Video or Audio You Want: ")
-
-    #         VideoData.exit_from_program(quality)
-
-    #         if quality in dict_streams[type_video]:
-    #             return quality
-    #         else:
-    #             print("please enter valid quality")
 
     @staticmethod
     def get_valid_location():
         loc = input("Enter Location You Want to Download in It : ")
 
-        VideoData.exit_from_program(loc)
+        exit_from_program(loc)
 
         if os.path.exists(loc):
             return loc
         else:
+            print("Please Enter Valid Path in Your Machine")
             return VideoData.get_valid_location()
 
 
@@ -124,56 +82,29 @@ class VideoData:
     def print_all_res(video):
         dict_streams = {}
         print("This All Types and Resolution That Found :")
-        video_with_audio_streams = video.streams.filter(progressive=True).all()        
-        video_without_audio_streams = video.streams.filter(adaptive=True, only_video = True).all()        
-        audio_streams = video.streams.filter(adaptive=True, only_audio = True).all()
+        video_with_audio_streams = video.streams.filter(progressive=True).desc()
+        video_without_audio_streams = video.streams.filter(adaptive=True, only_video = True).desc()
+        audio_streams = video.streams.filter(adaptive=True, only_audio = True).desc()
 
         counter = 0
 
         print("Video With Audio: ")
         for stream in video_with_audio_streams:
             counter += 1
-            print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : {stream.res} - Size : {stream.filesize_mb}")
+            print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : {stream.resolution} - Size : {stream.filesize_mb} mb")
             dict_streams[counter] = stream.itag
 
         print("Video Without Audio: ")
         for stream in video_without_audio_streams:
-            if stream.res:
+            if stream.resolution:
                 counter += 1
-                print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : { stream.res } - Size : {stream.filesize_mb}")
+                print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : { stream.resolution } - Size : {stream.filesize_mb} mb")
                 dict_streams[counter] = stream.itag
 
         print("Audio: ")
         for stream in audio_streams:
             counter += 1
-            print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Appoggiaturas  : { stream.abr } - Size : {stream.filesize_mb}")
+            print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Appoggiaturas  : { stream.abr } - Size : {stream.filesize_mb} mb")
             dict_streams[counter] = stream.itag
 
         return dict_streams
-
-
-    # @staticmethod
-    # def print_video_res_types(video):
-    #     dict_streams = {}
-    #     print("this all types and resolution that found")
-
-    #     for stream in video.streams:
-    #         dict_streams[stream.mime_type] = []
-
-
-    #     for stream_mime_type in dict_streams:
-    #         for stream in video.streams.filter(mime_type = stream_mime_type):
-    #             if stream.resolution:
-    #                 dict_streams[stream_mime_type].append(stream.resolution)
-    #             elif stream.audio_codec:
-    #                 dict_streams[stream_mime_type].append(stream.audio_codec)
-    #         if dict_streams[stream_mime_type]:
-    #             print(str(stream_mime_type) + " : " + str(dict_streams[stream_mime_type]))
-
-    #     return dict_streams
-
-    # @staticmethod
-    # def get_file_name():
-    #     name = input("Enter Name of File As You Want To Save It, Or Enter Y to Save With Common Name: ")
-    #     VideoData.exit_from_program(name)
-    #     return name
