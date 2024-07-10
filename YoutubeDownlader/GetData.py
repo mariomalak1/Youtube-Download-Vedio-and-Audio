@@ -31,8 +31,6 @@ class VideoData:
         videoObj = VideoData.get_video_link()
         dict_streams = VideoData.print_all_res(videoObj)
         itag = VideoData.get_specific_stream_number(dict_streams)
-        # typeToDownload = VideoData.get_type_video(dict_streams)
-        # res = VideoData.get_resolution_video(dict_streams, typeToDownload)
         destinationLocation = VideoData.get_valid_location()
 
         return videoObj.streams.get_by_itag(itag), destinationLocation
@@ -82,26 +80,26 @@ class VideoData:
     def print_all_res(video):
         dict_streams = {}
         print("This All Types and Resolution That Found :")
-        video_with_audio_streams = video.streams.filter(progressive=True).desc()
-        video_without_audio_streams = video.streams.filter(adaptive=True, only_video = True).desc()
-        audio_streams = video.streams.filter(adaptive=True, only_audio = True).desc()
+        video_with_audio_streams = video.streams.filter(progressive=True).order_by("subtype").order_by("mime_type").desc()
+        video_without_audio_streams = video.streams.filter(adaptive=True, only_video = True).order_by("subtype").order_by("mime_type").desc()
+        audio_streams = video.streams.filter(adaptive=True, only_audio = True).order_by("subtype").order_by("mime_type").desc()
 
         counter = 0
 
-        print("Video With Audio: ")
+        print("\nVideo With Audio: ")
         for stream in video_with_audio_streams:
             counter += 1
             print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : {stream.resolution} - Size : {stream.filesize_mb} mb")
             dict_streams[counter] = stream.itag
 
-        print("Video Without Audio: ")
+        print("\nVideo Without Audio: ")
         for stream in video_without_audio_streams:
             if stream.resolution:
                 counter += 1
                 print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Resolution : { stream.resolution } - Size : {stream.filesize_mb} mb")
                 dict_streams[counter] = stream.itag
 
-        print("Audio: ")
+        print("\nAudio: ")
         for stream in audio_streams:
             counter += 1
             print(f"Number : {str(counter)} - {get_type_from_video(stream.mime_type)} - Appoggiaturas  : { stream.abr } - Size : {stream.filesize_mb} mb")
